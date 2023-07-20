@@ -26,12 +26,14 @@ PAGELOAD_TO = 3
 SCROLL_TO = 1
 MAX_SCROLL_RETRIES = 5
 
-def startBrowser(chrome_driver_path):
+def startBrowser(chrome_driver_path, keep_data):
     """Starts browser with predefined parameters"""
     chrome_options = Options()
     if "GOOGLE_CHROME_PATH" in os.environ:
         chrome_options.binary_location = os.getenv('GOOGLE_CHROME_PATH')
     #chrome_options.add_argument('--headless')
+    if keep_data is not None:
+        chrome_options.add_argument("--user-data-dir=chrome-data")
     chrome_service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
@@ -87,7 +89,7 @@ def recipeToJSON(browser, recipeID):
 
     return recipe
 
-def run(webdriverfile, outputdir, separate_json, locale):
+def run(webdriverfile, outputdir, separate_json, locale, keep_data):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -100,7 +102,7 @@ def run(webdriverfile, outputdir, separate_json, locale):
 
     baseURL = 'https://cookidoo.{}/'.format(locale)
 
-    brw = startBrowser(webdriverfile)
+    brw = startBrowser(webdriverfile, keep_data)
 
     # opening the home page
     brw.get(baseURL)
@@ -228,10 +230,11 @@ def run(webdriverfile, outputdir, separate_json, locale):
         print('[CD] Writing recipes to JSON file')
         with open('{}data.json'.format(outputdir), 'w') as outfile: json.dump(recipeData, outfile)
 
-    # logging out
-    logoutURL = 'https://cookidoo.{}/profile/logout'.format(locale)
-    brw.get(logoutURL)
-    time.sleep(PAGELOAD_TO)
+    if keep_data is None:
+        # logging out
+        logoutURL = 'https://cookidoo.{}/profile/logout'.format(locale)
+        brw.get(logoutURL)
+        time.sleep(PAGELOAD_TO)
 
     # closing session
     print('[CD] Closing session\n[CD] Goodbye!')
@@ -243,5 +246,6 @@ if  __name__ =='__main__':
     parser.add_argument('outputdir', type=str, help='the output directory')
     parser.add_argument('-s', '--separate-json', action='store_true', help='Create a separate JSON file for each recipe; otherwise, a single data file will be generated')
     parser.add_argument('-l', '--locale', type=str, help='locale of cookidoo website (end of domain, ex. de, it, etc.))')
+    parser.add_argument('-k', '--keep-data', action='store_true', help='persist chrome data and cookies between runs, creates a local chrome-data directory')
     args = parser.parse_args()
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.locale)
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.locale, args.keep_data)
