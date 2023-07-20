@@ -87,13 +87,17 @@ def recipeToJSON(browser, recipeID):
 
     return recipe
 
-def run(webdriverfile, outputdir, separate_json):
+def run(webdriverfile, outputdir, separate_json, locale):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
     if outputdir[-1:][0] != '/': outputdir += '/'
 
-    locale = str(input('[CD] Complete the website domain: https://cookidoo.'))
+    if locale is None:
+        locale = str(input('[CD] Complete the website domain: https://cookidoo.'))
+    else:
+        print('[CD] Locale argument set, going to https://cookidoo.{}'.format(locale))
+
     baseURL = 'https://cookidoo.{}/'.format(locale)
 
     brw = startBrowser(webdriverfile)
@@ -238,5 +242,6 @@ if  __name__ =='__main__':
     parser.add_argument('webdriverfile', type=str, help='the path to the Chrome WebDriver file')
     parser.add_argument('outputdir', type=str, help='the output directory')
     parser.add_argument('-s', '--separate-json', action='store_true', help='Create a separate JSON file for each recipe; otherwise, a single data file will be generated')
+    parser.add_argument('-l', '--locale', type=str, help='locale of cookidoo website (end of domain, ex. de, it, etc.))')
     args = parser.parse_args()
-    run(args.webdriverfile, args.outputdir, args.separate_json)
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.locale)
