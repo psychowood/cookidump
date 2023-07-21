@@ -89,6 +89,9 @@ def recipeToJSON(browser, recipeID):
 
     return recipe
 
+def removeElement(browser, element):
+    browser.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", element)
+
 def run(webdriverfile, outputdir, separate_json, locale, keep_data):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
@@ -125,14 +128,14 @@ def run(webdriverfile, outputdir, separate_json, locale, keep_data):
     print('[CD] Proceeding with scraping')
 
     # removing the base href header
-    brw.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", brw.find_element(By.TAG_NAME, 'base'))
+    removeElement(brw,brw.find_element(By.TAG_NAME, 'base'))
 
     # removing the name
-    brw.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", brw.find_element(By.TAG_NAME, 'core-transclude'))
 
     # clicking on cookie accept
     try: brw.find_element(By.CLASS_NAME, 'accept-cookie-container').click()
     except: pass
+    removeElement(brw,brw.find_element(By.TAG_NAME, 'core-transclude'))
 
     # showing all recipes
     elementsToBeFound = int(brw.find_element(By.CLASS_NAME, 'search-results-count__hits').get_attribute('innerHTML'))
@@ -167,10 +170,10 @@ def run(webdriverfile, outputdir, separate_json, locale, keep_data):
         brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", el, 'href', './recipes/{}.html'.format(recipeID))
 
     # removing search bar
-    brw.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", brw.find_element(By.TAG_NAME, 'search-bar'))
+    removeElement(brw,brw.find_element(By.TAG_NAME, 'search-bar'))
 
     # removing scripts
-    for s in brw.find_elements(By.TAG_NAME, 'script'): brw.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", s)
+    for s in brw.find_elements(By.TAG_NAME, 'script'): removeElement(brw,s)
 
     # saving the list to file
     listToFile(brw, outputdir)
@@ -192,10 +195,10 @@ def run(webdriverfile, outputdir, separate_json, locale, keep_data):
             brw.get(recipeURL)
             time.sleep(PAGELOAD_TO)
             # removing the base href header
-            try: brw.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", brw.find_element(By.TAG_NAME, 'base'))
+            try: removeElement(brw,brw.find_element(By.TAG_NAME, 'base'))
             except: pass
             # removing the name
-            brw.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", brw.find_element(By.TAG_NAME, 'core-transclude'))
+            removeElement(brw,brw.find_element(By.TAG_NAME, 'core-transclude'))
             # changing the top url
             brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", brw.find_element(By.CLASS_NAME, 'page-header__home'), 'href', '../../index.html')
 
