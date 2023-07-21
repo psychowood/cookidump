@@ -26,13 +26,13 @@ PAGELOAD_TO = 3
 SCROLL_TO = 1
 MAX_SCROLL_RETRIES = 5
 
-def startBrowser(chrome_driver_path, keep_data):
+def startBrowser(chrome_driver_path, keep_data = False):
     """Starts browser with predefined parameters"""
     chrome_options = Options()
     if "GOOGLE_CHROME_PATH" in os.environ:
         chrome_options.binary_location = os.getenv('GOOGLE_CHROME_PATH')
     #chrome_options.add_argument('--headless')
-    if keep_data is not None:
+    if keep_data:
         chrome_options.add_argument("--user-data-dir=chrome-data")
     chrome_service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
@@ -92,7 +92,7 @@ def recipeToJSON(browser, recipeID):
 def removeElement(browser, element):
     browser.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", element)
 
-def run(webdriverfile, outputdir, separate_json, locale, keep_data):
+def run(webdriverfile, outputdir, separate_json, locale, keep_data = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
