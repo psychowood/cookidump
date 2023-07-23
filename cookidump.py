@@ -28,12 +28,13 @@ SCROLL_TO = 1
 MAX_SCROLL_RETRIES = 5
 COOKIES_FILE = 'cookies.json'
 
-def startBrowser(chrome_driver_path, keep_data = False):
+def startBrowser(chrome_driver_path, keep_data = False, headless = False):
     """Starts browser with predefined parameters"""
     chrome_options = Options()
     if "GOOGLE_CHROME_PATH" in os.environ:
         chrome_options.binary_location = os.getenv('GOOGLE_CHROME_PATH')
-    #chrome_options.add_argument('--headless')
+    if headless:
+        chrome_options.add_argument('--headless')
     if keep_data:
         chrome_options.add_argument("--user-data-dir=chrome-data")
     chrome_service = Service(chrome_driver_path)
@@ -184,7 +185,7 @@ def runActionOnElements(browser, byQuery, query, action):
 def isAuthenticated(browser):
     return browser.get_cookie("v-authenticated") is not None
 
-def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False, save_cookies = False):
+def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False, save_cookies = False, headless = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -202,12 +203,15 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
             cookies = json.load(infile)
             print('[CD] {} file found and parsed'.format(COOKIES_FILE))
     except FileNotFoundError: 
+        if headless:
+            print('[CD] Error: {} file not found, please run cookidump with --save-cookies first'.format(COOKIES_FILE))
+            exit(-1)
         cookies = None
     except:
         print('[CD] Error: {} file not valid, please check - or delete - it, and run cookidump with --save-cookies again'.format(COOKIES_FILE))
         exit(-1)
     
-    brw = startBrowser(webdriverfile, keep_data)
+    brw = startBrowser(webdriverfile, keep_data, headless)
 
     # try opening the profile url and check if authenticated
     brw.get(baseURL)
@@ -387,6 +391,13 @@ if  __name__ =='__main__':
     parser.add_argument('-k', '--keep-data', action='store_true', help='persists chrome data and cookies between runs, creates a local chrome-data directory')
     parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
     parser.add_argument('-p', '--pdf', action='store_true', help='saves recipe in pdf format too')
-    parser.add_argument('--save-cookies', action='store_true', help='store cookies in local {} file then exits, to avoid login on subsequent runs'.format(COOKIES_FILE))
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--save-cookies', action='store_true', help='store cookies in local {} file then exits; to be used with --headless or to avoid login on subsequent runs'.format(COOKIES_FILE))
+    group.add_argument('--headless', action='store_true', help='runs Chrome in headless mode, needs both a {} saved with --save-cookies previously and --searchquery specified'.format(COOKIES_FILE))
     args = parser.parse_args()
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data, args.pdf)
+
+    if (args.headless and args.searchquery is None):
+        parser.error('--headless requires --searchquery to be specified')
+        exit(-1)
+
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data, args.pdf, args.save_cookies, args.headless)
