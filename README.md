@@ -81,14 +81,20 @@ Simply run the following command to start the program interactively, to simplify
 python cookidump.py webdriverfile outputdir
 ```
 
-where the main options are:
+where the options are:
 * `webdriverfile` identifies the path to the downloaded [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) (for instance, `chromedriver.exe` for Windows hosts, `./chromedriver` for Linux and macOS hosts)
 * `outputdir` identifies the path of the output directory (will be created, if not already existent)
-
-The complete set of options is the following:
+* `-s` or `--separate-json` creates a separate JSON file for each recipe; otherwise, a single data file will be generated
+* `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.))
+* `-k` or `--keep-data` persists chrome data and cookies between runs, creates a local chrome-data directory and avoid logging in for each separate run
+* `--searchquery SEARCHQUERY` specifies the search query to use, copied from the site after setting filter(e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
+* `-p` or `--pdf` saves recipe in pdf format, together with json and html
+* `--save-cookies` store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
+* `--headless` runs Chrome in headless mode, needs both a cookies.json saved with --save-cookies previously and --searchquery specified
+* `-h` prints the complete set of options:
 
 ```
-usage: cookidump.py [-h] [-s] [-l LOCALE] [-k] [--searchquery SEARCHQUERY] [-p] webdriverfile outputdir
+usage: cookidump.py [-h] [-s] [-l LOCALE] [-k] [--searchquery SEARCHQUERY] [-p] [--save-cookies | --headless] webdriverfile outputdir
 
 Dump Cookidoo recipes from a valid account
 
@@ -98,19 +104,65 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -s, --separate-json   Create a separate JSON file for each recipe; otherwise, a single data file will be generated
+  -s, --separate-json   creates a separate JSON file for each recipe; otherwise, a single data file will be generated
   -l LOCALE, --locale LOCALE
-                        locale of cookidoo website (end of domain, ex. de, it, etc.))
-  -k, --keep-data       persist chrome data and cookies between runs, creates a local chrome-data directory
+                        sets locale of cookidoo website (end of domain, ex. de, it, etc.))
+  -k, --keep-data       persists chrome data and cookies between runs, creates a local chrome-data directory
   --searchquery SEARCHQUERY
                         the search query to use copied from the site after setting filter, without the domain (e.g. something like
                         "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
-  -p, --pdf             save recipe in pdf format too
-```
+  -p, --pdf             saves recipe in pdf format too
+  --save-cookies        store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
+  --headless            runs Chrome in headless mode, needs both a cookies.json saved with --save-cookies previously and --searchquery
+                        specified
+  ```
 
-The program will open a [Google Chrome](https://chrome.google.com) window and wait until you are logged in into your [Cookidoo](https://cookidoo.co.uk) account (different countries are supported, either interactively or using the --locale/-l option).
+The program will open a [Google Chrome](https://chrome.google.com) window - or headless - and wait until you are logged in into your [Cookidoo](https://cookidoo.co.uk) account if needed, (different countries are supported, either interactively or using the --locale/-l option).
 
 After that, follow intructions provided by the script itself to proceed with the dump.
+
+### Advanced usage ###
+
+By using the various options you can automate everything. Using a shell script to iterate to queries of interest you can dump whatever you want without interacting besides the first login:
+
+```
+
+$ python ./cookidump.py -l it -p ./chromedriver.i386 ./recipes/test --save-cookies
+[CD] Welcome to cookidump, starting things off...
+[CD] Locale argument set, going to https://cookidoo.it
+[CD] Not authenticated, please login to your account and then enter y to continue: y
+[CD] Cookies saved to cookies.json, please re-run cookidump without --save-cookies
+
+$ python ./cookidump.py -l it --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -s ./chromedriver.i386 ./recipes/mysearch
+[CD] Welcome to cookidump, starting things off...
+[CD] Locale argument set, going to https://cookidoo.it
+[CD] cookies.json file found and parsed
+[CD] Injecting cookies
+[CD] Proceeding with scraping page https://cookidoo.it/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013
+Scrolling [8/1]
+Getting all recipes...
+[CD] Exporting recipe in PDF file
+[CD] Writing recipe to JSON file
+[CD] Closing session
+[CD] Goodbye!
+
+$ ls -lR recipes/mysearch
+total 136
+drwxr-xr-x  3 user  staff     96 Jul 23 19:55 images
+-rw-r--r--  1 user  staff  67083 Jul 23 19:55 index.html
+drwxr-xr-x  5 user  staff    160 Jul 23 19:55 recipes
+
+recipes/mysearch/images:
+total 96
+-rw-r--r--  1 user  staff  45152 Jul 23 19:55 r660642.jpg
+
+recipes/mysearch/recipes:
+total 528
+-rw-r--r--  1 user  staff   68960 Jul 23 19:55 r660642.html
+-rw-r--r--  1 user  staff    2865 Jul 23 19:55 r660642.json
+-rw-r--r--  1 user  staff  192693 Jul 23 19:55 r660642.pdf
+```
+
 
 #### Considerations ####
 
@@ -130,10 +182,9 @@ Output is represented in this case in a different (structured) format, hence, it
 
 ### TODO ###
 
-* Bypass the limited number of exported recipes
+* Bypass the limited number of exported recipes -> not really feasible automatically, the remote API limits to 1000 records. Can be bypassed by running multiple times with different search queries but needs quite a bit of smartness on the algorithm and would need merge of lists in the main html file to be browseable
 * Parse downloaded recipes to store them on a database, or to generate a unique linked PDF
-* Make Chrome run headless for better speeds
-* Set up a dedicated container for the program
+* Set up a dedicated container for the program -> needs to handle user and password via CLI if the end user is not smart enough to manually dump cookies
 
 ### Supporters ###
 
