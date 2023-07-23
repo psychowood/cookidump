@@ -28,15 +28,13 @@ SCROLL_TO = 1
 MAX_SCROLL_RETRIES = 5
 COOKIES_FILE = 'cookies.json'
 
-def startBrowser(chrome_driver_path, keep_data = False, headless = False):
+def startBrowser(chrome_driver_path, headless = False):
     """Starts browser with predefined parameters"""
     chrome_options = Options()
     if "GOOGLE_CHROME_PATH" in os.environ:
         chrome_options.binary_location = os.getenv('GOOGLE_CHROME_PATH')
     if headless:
         chrome_options.add_argument('--headless')
-    if keep_data:
-        chrome_options.add_argument("--user-data-dir=chrome-data")
     chrome_service = Service(chrome_driver_path)
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
     return driver
@@ -185,7 +183,7 @@ def runActionOnElements(browser, byQuery, query, action):
 def isAuthenticated(browser):
     return browser.get_cookie("v-authenticated") is not None
 
-def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False, save_cookies = False, headless = False):
+def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = False, save_cookies = False, headless = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -214,7 +212,7 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     else:
         cookies = None
     
-    brw = startBrowser(webdriverfile, keep_data, headless)
+    brw = startBrowser(webdriverfile, headless)
 
     # try opening the profile url and check if authenticated
     brw.get(baseURL)
@@ -375,7 +373,7 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
         print('[CD] Writing recipes to JSON file')
         with open('{}data.json'.format(outputdir), 'w') as outfile: json.dump(recipeData, outfile)
 
-    if keep_data is None:
+    if cookies is None:
         # logging out
         logoutURL = 'https://cookidoo.{}/profile/logout'.format(locale)
         brw.get(logoutURL)
@@ -391,7 +389,6 @@ if  __name__ =='__main__':
     parser.add_argument('outputdir', type=str, help='the output directory. If a search query is specified it will be used directly to save the recipes')
     parser.add_argument('-s', '--separate-json', action='store_true', help='creates a separate JSON file for each recipe; otherwise, a single data file will be generated')
     parser.add_argument('-l', '--locale', type=str, help='sets locale of cookidoo website (end of domain, ex. de, it, etc.))')
-    parser.add_argument('-k', '--keep-data', action='store_true', help='persists chrome data and cookies between runs, creates a local chrome-data directory')
     parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
     parser.add_argument('-p', '--pdf', action='store_true', help='saves recipe in pdf format too')
     group = parser.add_mutually_exclusive_group()
@@ -403,4 +400,4 @@ if  __name__ =='__main__':
         parser.error('--headless requires --searchquery to be specified')
         exit(-1)
 
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data, args.pdf, args.save_cookies, args.headless)
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless)

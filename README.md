@@ -86,7 +86,6 @@ where the options are:
 * `outputdir` identifies the path of the output directory (will be created, if not already existent)
 * `-s` or `--separate-json` creates a separate JSON file for each recipe; otherwise, a single data file will be generated
 * `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.))
-* `-k` or `--keep-data` persists chrome data and cookies between runs, creates a local chrome-data directory and avoid logging in for each separate run
 * `--searchquery SEARCHQUERY` specifies the search query to use, copied from the site after setting filter(e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
 * `-p` or `--pdf` saves recipe in pdf format, together with json and html
 * `--save-cookies` store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
@@ -107,7 +106,6 @@ options:
   -s, --separate-json   creates a separate JSON file for each recipe; otherwise, a single data file will be generated
   -l LOCALE, --locale LOCALE
                         sets locale of cookidoo website (end of domain, ex. de, it, etc.))
-  -k, --keep-data       persists chrome data and cookies between runs, creates a local chrome-data directory
   --searchquery SEARCHQUERY
                         the search query to use copied from the site after setting filter, without the domain (e.g. something like
                         "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
