@@ -162,7 +162,7 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
         brw.get(rbURL)
         time.sleep(PAGELOAD_TO)
 
-    print('[CD] Proceeding with scraping')
+    print('[CD] Proceeding with scraping page {}'.format(brw.current_url))
 
     # removing the base href header
     removeElements(brw,By.TAG_NAME, 'base')
