@@ -145,6 +145,9 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     while (not isAuthenticated(brw)):
         reply = input('[CD] Not authenticated, please login to your account and then enter y to continue: ')
 
+    # clicking on cookie reject
+    try: brw.find_element(By.ID, 'onetrust-reject-all-handler').click()
+    except: pass
 
     # recipes base url
     rbURL = 'https://cookidoo.{}'.format(locale)
@@ -169,10 +172,6 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     removeElements(brw,By.TAG_NAME, 'base')
 
     # removing the name
-
-    # clicking on cookie accept
-    try: brw.find_element(By.CLASS_NAME, 'accept-cookie-container').click()
-    except: pass
     removeElements(brw, By.TAG_NAME, 'core-transclude')
 
     # showing all recipes
