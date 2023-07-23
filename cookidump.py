@@ -120,6 +120,9 @@ def send_devtools(driver, cmd, params={}):
 def removeElements(browser, byQuery, query):
     runActionOnElements(browser, byQuery, query, 'parentNode.removeChild(item);')
 
+def isAuthenticated(browser):
+    return browser.get_cookie("v-authenticated") is not None
+
 def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
@@ -139,9 +142,7 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     brw.get(baseURL)
     time.sleep(PAGELOAD_TO)
 
-    isAuth = (brw.get_cookie("v-authenticated") is not None)
-    
-    if not isAuth:
+    while (not isAuthenticated(brw)):
         reply = input('[CD] Not authenticated, please login to your account and then enter y to continue: ')
 
 
