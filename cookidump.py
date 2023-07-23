@@ -117,8 +117,68 @@ def send_devtools(driver, cmd, params={}):
     raise Exception(response.get('value'))
   return response.get('value')
 
+def cleanHtml(browser):
+
+    #remove header and residual margin
+    try: removeElements(browser, By.TAG_NAME, 'header')
+    except: pass
+    try: runActionOnElements(browser, By.CLASS_NAME, 'l-header-offset-small', 'setAttribute("style","margin-top: 0 !important")')
+    except: pass
+    
+    #remove footer
+    try: removeElements(browser, By.TAG_NAME, 'core-footer')
+    except: pass
+    
+    #remove alternative recipes
+    try: removeElements(browser, By.ID, 'alternative-recipes')
+    except: pass
+    
+    #remove sharing banner
+    try: removeElements(browser, By.ID, 'core-share')
+    except: pass
+    
+    #remove common collections
+    try: removeElements(browser, By.ID, 'in-collections')
+    except: pass
+    
+    #remove recipe actions (e.g. add to my recipes/my week)
+    try: removeElements(browser, By.CLASS_NAME, 'recipe-card__btn-line')
+    except: pass
+    
+    #disable serving size modal
+    try: removeClassFromElements(browser, By.ID, 'serving-size-modal-trigger','core-feature-icons__item--large-rectangle')
+    except: pass
+
+    #disable serving size modal
+    try: removeClassFromElements(browser, By.ID, 'serving-size-modal-trigger','core-feature-icons__item--large-rectangle')
+    except: pass
+    try: removeClassFromElements(browser, By.CSS_SELECTOR, 'core-feature-icons .core-feature-icons__icon','core-feature-icons__icon')
+    except: pass
+
+    #expand tags, remove expand/collapse links and override hrefs
+    try: runActionOnElements(browser, By.CSS_SELECTOR, 'core-tags-wrapper .core-tags-wrapper__wrapper', 'setAttribute("style","max-height: 100% !important")')
+    except: pass
+    try: removeElements(browser,By.CSS_SELECTOR, 'core-tags-wrapper .link--subsequent')
+    except: pass
+    try: removeElements(browser,By.CSS_SELECTOR, 'core-tags-wrapper .link--subsequent')
+    except: pass
+    try: runActionOnElements(browser, By.CSS_SELECTOR, 'core-tags-wrapper a', 'href="#";')
+    except: pass
+
+    #remove cookie banner and scripts
+    try: removeElements(browser, By.ID, '#onetrust-consent-sdk')
+    except: pass
+    try: removeElements(browser, By.CSS_SELECTOR, 'script[src*="otSDKStub"]')
+    except: pass
+
 def removeElements(browser, byQuery, query):
     runActionOnElements(browser, byQuery, query, 'parentNode.removeChild(item);')
+
+def removeClassFromElements(browser, byQuery, query, classToRemove):
+    runActionOnElements(browser, byQuery, query, 'classList.remove("'+classToRemove+'")')
+
+def runActionOnElements(browser, byQuery, query, action):
+    browser.execute_script("arguments[0].forEach(function(item) {item."+ action + "})", browser.find_elements(byQuery, query))
 
 def isAuthenticated(browser):
     return browser.get_cookie("v-authenticated") is not None
@@ -212,6 +272,9 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     # removing scripts
     removeElements(brw, By.TAG_NAME, 'script')
 
+    #cleaning html for local saving and printing
+    cleanHtml(brw)
+
     # saving the list to file
     listToFile(brw, outputdir)
 
@@ -247,6 +310,9 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
             # change the image url to local
             brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", brw.find_element(By.CLASS_NAME, 'core-tile__image'), 'srcset', '')
             brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", brw.find_element(By.CLASS_NAME, 'core-tile__image'), 'src', local_img_path)
+
+            #cleaning html for local saving and printing
+            cleanHtml(brw)
 
             # saving the file
             recipeToFile(brw, '{}recipes/{}.html'.format(outputdir, recipeID))
