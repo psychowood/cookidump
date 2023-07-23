@@ -198,18 +198,21 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
 
     baseURL = 'https://cookidoo.{}/'.format(locale)
 
-    try: 
-        with open(COOKIES_FILE, 'r') as infile: 
-            cookies = json.load(infile)
-            print('[CD] {} file found and parsed'.format(COOKIES_FILE))
-    except FileNotFoundError: 
-        if headless:
-            print('[CD] Error: {} file not found, please run cookidump with --save-cookies first'.format(COOKIES_FILE))
+    if not save_cookies:
+        try: 
+            with open(COOKIES_FILE, 'r') as infile: 
+                cookies = json.load(infile)
+                print('[CD] {} file found and parsed'.format(COOKIES_FILE))
+        except FileNotFoundError: 
+            if headless:
+                print('[CD] Error: {} file not found, please run cookidump with --save-cookies first'.format(COOKIES_FILE))
+                exit(-1)
+            cookies = None
+        except:
+            print('[CD] Error: {} file not valid, please check - or delete - it, and run cookidump with --save-cookies again'.format(COOKIES_FILE))
             exit(-1)
+    else:
         cookies = None
-    except:
-        print('[CD] Error: {} file not valid, please check - or delete - it, and run cookidump with --save-cookies again'.format(COOKIES_FILE))
-        exit(-1)
     
     brw = startBrowser(webdriverfile, keep_data, headless)
 
