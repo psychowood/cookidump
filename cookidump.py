@@ -90,8 +90,6 @@ def recipeToJSON(browser, recipeID):
 
     return recipe
 
-def removeElement(browser, element):
-    browser.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", element)
 def recipeToPdf(browser, filename):
     """Gets html of the recipe and saves in pdf file"""
     send_devtools(browser, "Emulation.setEmulatedMedia", {'media': 'screen'})
@@ -108,6 +106,7 @@ def recipeToPdf(browser, filename):
     })
     with open(filename, 'wb') as outfile: 
         outfile.write( base64.b64decode(printOutput['data']))
+
 def send_devtools(driver, cmd, params={}):
   """Send devtools command with params to browser, used to export in pdf"""
   resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
@@ -117,6 +116,9 @@ def send_devtools(driver, cmd, params={}):
   if 'status' in response:
     raise Exception(response.get('value'))
   return response.get('value')
+
+def removeElements(browser, byQuery, query):
+    runActionOnElements(browser, byQuery, query, 'parentNode.removeChild(item);')
 
 def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False):
     """Scraps all recipes and stores them in html"""
@@ -163,14 +165,14 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     print('[CD] Proceeding with scraping')
 
     # removing the base href header
-    removeElement(brw,brw.find_element(By.TAG_NAME, 'base'))
+    removeElements(brw,By.TAG_NAME, 'base')
 
     # removing the name
 
     # clicking on cookie accept
     try: brw.find_element(By.CLASS_NAME, 'accept-cookie-container').click()
     except: pass
-    removeElement(brw,brw.find_element(By.TAG_NAME, 'core-transclude'))
+    removeElements(brw, By.TAG_NAME, 'core-transclude')
 
     # showing all recipes
     elementsToBeFound = int(brw.find_element(By.CLASS_NAME, 'search-results-count__hits').get_attribute('innerHTML'))
@@ -205,10 +207,10 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
         brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", el, 'href', './recipes/{}.html'.format(recipeID))
 
     # removing search bar
-    removeElement(brw,brw.find_element(By.TAG_NAME, 'search-bar'))
+    removeElements(brw, By.TAG_NAME, 'search-bar')
 
     # removing scripts
-    for s in brw.find_elements(By.TAG_NAME, 'script'): removeElement(brw,s)
+    removeElements(brw, By.TAG_NAME, 'script')
 
     # saving the list to file
     listToFile(brw, outputdir)
@@ -230,10 +232,11 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
             brw.get(recipeURL)
             time.sleep(PAGELOAD_TO)
             # removing the base href header
-            try: removeElement(brw,brw.find_element(By.TAG_NAME, 'base'))
-            except: pass
+            removeElements(brw,By.TAG_NAME, 'base')
+            
             # removing the name
-            removeElement(brw,brw.find_element(By.TAG_NAME, 'core-transclude'))
+            removeElements(brw,By.TAG_NAME, 'core-transclude')
+            
             # changing the top url
             brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", brw.find_element(By.CLASS_NAME, 'page-header__home'), 'href', '../../index.html')
 
@@ -261,7 +264,7 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
                 with open('{}recipes/{}.json'.format(outputdir, recipeID), 'w') as outfile: json.dump(recipe, outfile)
             else:
                 recipeData.append(recipe)
-
+                        
             # printing information
             c += 1
             if c % 10 == 0: print('Dumped recipes: {}/{}'.format(c, len(recipesURLs)))
