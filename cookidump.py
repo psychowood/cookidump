@@ -319,6 +319,7 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
 
             if pdf:
                 # exporting in pdf
+                print('[CD] Exporting recipe in PDF file')
                 recipeToPdf(brw, '{}recipes/{}.pdf'.format(outputdir, recipeID))
 
             # extracting JSON info
@@ -355,10 +356,10 @@ if  __name__ =='__main__':
     parser = argparse.ArgumentParser(description='Dump Cookidoo recipes from a valid account')
     parser.add_argument('webdriverfile', type=str, help='the path to the Chrome WebDriver file')
     parser.add_argument('outputdir', type=str, help='the output directory. If a search query is specified it will be used directly to save the recipes')
-    parser.add_argument('-s', '--separate-json', action='store_true', help='Create a separate JSON file for each recipe; otherwise, a single data file will be generated')
-    parser.add_argument('-l', '--locale', type=str, help='locale of cookidoo website (end of domain, ex. de, it, etc.))')
-    parser.add_argument('-k', '--keep-data', action='store_true', help='persist chrome data and cookies between runs, creates a local chrome-data directory')
+    parser.add_argument('-s', '--separate-json', action='store_true', help='creates a separate JSON file for each recipe; otherwise, a single data file will be generated')
+    parser.add_argument('-l', '--locale', type=str, help='sets locale of cookidoo website (end of domain, ex. de, it, etc.))')
+    parser.add_argument('-k', '--keep-data', action='store_true', help='persists chrome data and cookies between runs, creates a local chrome-data directory')
     parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
-    parser.add_argument('-p', '--pdf', action='store_true', help='save recipe in pdf format too')
+    parser.add_argument('-p', '--pdf', action='store_true', help='saves recipe in pdf format too')
     args = parser.parse_args()
     run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data, args.pdf)
