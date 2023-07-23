@@ -12,6 +12,7 @@ import json
 import pathlib
 import argparse
 import platform
+import base64
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from urllib.parse import urlparse
@@ -91,8 +92,33 @@ def recipeToJSON(browser, recipeID):
 
 def removeElement(browser, element):
     browser.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", element)
+def recipeToPdf(browser, filename):
+    """Gets html of the recipe and saves in pdf file"""
+    send_devtools(browser, "Emulation.setEmulatedMedia", {'media': 'screen'})
+    printOutput = send_devtools(browser, "Page.printToPDF", {
+        "paperWidth": 210 / 25.4,
+        "paperHeight": 297 / 25.4,
+        "scale": 0.45,
+        "displayHeaderFooter": False,
+        "printBackground": False,
+        "marginTop": 0.1,
+        "marginRight": 0.1,
+        "marginBottom": 0.1,
+        "marginLeft": 0.1
+    })
+    with open(filename, 'wb') as outfile: 
+        outfile.write( base64.b64decode(printOutput['data']))
+def send_devtools(driver, cmd, params={}):
+  """Send devtools command with params to browser, used to export in pdf"""
+  resource = "/session/%s/chromium/send_command_and_get_result" % driver.session_id
+  url = driver.command_executor._url + resource
+  body = json.dumps({'cmd': cmd, 'params': params})
+  response = driver.command_executor._request('POST', url, body)
+  if 'status' in response:
+    raise Exception(response.get('value'))
+  return response.get('value')
 
-def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False):
+def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -220,6 +246,10 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
             # saving the file
             recipeToFile(brw, '{}recipes/{}.html'.format(outputdir, recipeID))
 
+            if pdf:
+                # exporting in pdf
+                recipeToPdf(brw, '{}recipes/{}.pdf'.format(outputdir, recipeID))
+
             # extracting JSON info
             recipe = recipeToJSON(brw, recipeID)
 
@@ -258,5 +288,6 @@ if  __name__ =='__main__':
     parser.add_argument('-l', '--locale', type=str, help='locale of cookidoo website (end of domain, ex. de, it, etc.))')
     parser.add_argument('-k', '--keep-data', action='store_true', help='persist chrome data and cookies between runs, creates a local chrome-data directory')
     parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
+    parser.add_argument('-p', '--pdf', action='store_true', help='save recipe in pdf format too')
     args = parser.parse_args()
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data)
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data, args.pdf)
