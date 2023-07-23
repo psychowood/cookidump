@@ -6,7 +6,7 @@ Easily dump cookidoo recipes from the official website
 
 This program allows you to dump all recipes on [Cookidoo](https://cookidoo.co.uk) websites (available for different countries) for offline and posticipate reading.
 Those recipes are valid in particular for [Thermomix/Bimby](https://en.wikipedia.org/wiki/Thermomix) devices.
-In order to dump the recipes, a valid subscription is needed.
+In order to dump the recipes, a valid subscription (or a trial one) is needed.
 
 The initial concept of this program was based on [jakubszalaty/cookidoo-parser](https://github.com/jakubszalaty/cookidoo-parser).
 
@@ -38,10 +38,11 @@ Further information can be found at [https://www.sciencedirect.com/science/artic
 * Easy to open HTML output
 * Output including a surfable list of dumped recipes
 * Customizable searches
+* Additional json and pdf output
 
 ### Installation ###
 
-#### nix ####
+#### nix (not supported by this fork) ####
 
 ```
 nix run github:auino/cookidump -- <outputdir> [--separate-json]
@@ -66,7 +67,7 @@ git clone https://github.com/auino/cookidump.git
 pip install -r requirements.txt
 ```
 
-4. Install the [Google Chrome](https://chrome.google.com) browser, if not already installed
+4. Install the [Google Chrome](https://chrome.google.com) browser, if not already installed. In MacOs you can also just copy the Chrome app in the cookidump folder
 
 5. Download the [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) and save it on the `cookidump` folder
 
@@ -74,18 +75,40 @@ pip install -r requirements.txt
 
 ### Usage ###
 
-Simply run the following command to start the program. The program is interactive to simplify it's usage.
+Simply run the following command to start the program interactively, to simplify it's usage:
 
 ```
-python cookidump.py [--separate-json] <webdriverfile> <outputdir>
+python cookidump.py webdriverfile outputdir
 ```
 
-where:
+where the main options are:
 * `webdriverfile` identifies the path to the downloaded [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) (for instance, `chromedriver.exe` for Windows hosts, `./chromedriver` for Linux and macOS hosts)
 * `outputdir` identifies the path of the output directory (will be created, if not already existent)
-* `--separate-json` allows to generate a separate JSON file for each recipe, instead of one aggregate file including all recipes
 
-The program will open a [Google Chrome](https://chrome.google.com) window and wait until you are logged in into your [Cookidoo](https://cookidoo.co.uk) account (different countries are supported).
+The complete set of options is the following:
+
+```
+usage: cookidump.py [-h] [-s] [-l LOCALE] [-k] [--searchquery SEARCHQUERY] [-p] webdriverfile outputdir
+
+Dump Cookidoo recipes from a valid account
+
+positional arguments:
+  webdriverfile         the path to the Chrome WebDriver file
+  outputdir             the output directory. If a search query is specified it will be used directly to save the recipes
+
+options:
+  -h, --help            show this help message and exit
+  -s, --separate-json   Create a separate JSON file for each recipe; otherwise, a single data file will be generated
+  -l LOCALE, --locale LOCALE
+                        locale of cookidoo website (end of domain, ex. de, it, etc.))
+  -k, --keep-data       persist chrome data and cookies between runs, creates a local chrome-data directory
+  --searchquery SEARCHQUERY
+                        the search query to use copied from the site after setting filter, without the domain (e.g. something like
+                        "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
+  -p, --pdf             save recipe in pdf format too
+```
+
+The program will open a [Google Chrome](https://chrome.google.com) window and wait until you are logged in into your [Cookidoo](https://cookidoo.co.uk) account (different countries are supported, either interactively or using the --locale/-l option).
 
 After that, follow intructions provided by the script itself to proceed with the dump.
 
