@@ -26,6 +26,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 PAGELOAD_TO = 3
 SCROLL_TO = 1
 MAX_SCROLL_RETRIES = 5
+COOKIES_FILE = 'cookies.json'
 
 def startBrowser(chrome_driver_path, keep_data = False):
     """Starts browser with predefined parameters"""
@@ -183,27 +184,52 @@ def runActionOnElements(browser, byQuery, query, action):
 def isAuthenticated(browser):
     return browser.get_cookie("v-authenticated") is not None
 
-def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False):
+def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False, pdf = False, save_cookies = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
     if outputdir[-1:][0] != '/': outputdir += '/'
-
+    
     if locale is None:
         locale = str(input('[CD] Complete the website domain: https://cookidoo.'))
     else:
         print('[CD] Locale argument set, going to https://cookidoo.{}'.format(locale))
 
-    baseURL = 'https://cookidoo.{}/profile/'.format(locale)
+    baseURL = 'https://cookidoo.{}/'.format(locale)
 
+    try: 
+        with open(COOKIES_FILE, 'r') as infile: 
+            cookies = json.load(infile)
+            print('[CD] {} file found and parsed'.format(COOKIES_FILE))
+    except FileNotFoundError: 
+        cookies = None
+    except:
+        print('[CD] Error: {} file not valid, please check - or delete - it, and run cookidump with --save-cookies again'.format(COOKIES_FILE))
+        exit(-1)
+    
     brw = startBrowser(webdriverfile, keep_data)
 
     # try opening the profile url and check if authenticated
     brw.get(baseURL)
     time.sleep(PAGELOAD_TO)
 
+    if (cookies is not None):
+        try:
+            # inject cookies
+            print('[CD] Injecting cookies')
+            for cookie in cookies:
+                brw.add_cookie(cookie)
+        except:
+            print('[CD] Error: {} file not valid, please check - or delete - it, and run cookidump with --save-cookies again'.format(COOKIES_FILE))
+            exit(-1)
+
     while (not isAuthenticated(brw)):
         reply = input('[CD] Not authenticated, please login to your account and then enter y to continue: ')
+
+    if save_cookies:
+        with open(COOKIES_FILE, 'w') as outfile: json.dump(brw.get_cookies(), outfile)
+        print('[CD] Cookies saved to {}, please re-run cookidump without --save-cookies'.format(COOKIES_FILE))
+        return
 
     # clicking on cookie reject
     try: brw.find_element(By.ID, 'onetrust-reject-all-handler').click()
@@ -361,5 +387,6 @@ if  __name__ =='__main__':
     parser.add_argument('-k', '--keep-data', action='store_true', help='persists chrome data and cookies between runs, creates a local chrome-data directory')
     parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
     parser.add_argument('-p', '--pdf', action='store_true', help='saves recipe in pdf format too')
+    parser.add_argument('--save-cookies', action='store_true', help='store cookies in local {} file then exits, to avoid login on subsequent runs'.format(COOKIES_FILE))
     args = parser.parse_args()
     run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data, args.pdf)
