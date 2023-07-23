@@ -92,7 +92,7 @@ def recipeToJSON(browser, recipeID):
 def removeElement(browser, element):
     browser.execute_script("var element = arguments[0];element.parentNode.removeChild(element);", element)
 
-def run(webdriverfile, outputdir, separate_json, locale, keep_data = False):
+def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -113,17 +113,24 @@ def run(webdriverfile, outputdir, separate_json, locale, keep_data = False):
 
     reply = input('[CD] Please login to your account and then enter y to continue: ')
 
+
+
     # recipes base url
-    rbURL = 'https://cookidoo.{}/search/'.format(locale)
+    rbURL = 'https://cookidoo.{}'.format(locale)
 
-    brw.get(rbURL)
-    time.sleep(PAGELOAD_TO)
-
-    # possible filters done here
-    reply = input('[CD] Set your filters, if any, and then enter y to continue: ')
-
-    custom_output_dir = input("[CD] enter the directory name to store the results (ex. vegeratian): ")
-    if custom_output_dir : outputdir += '{}/'.format(custom_output_dir)
+    if searchquery is None:
+        rbURL += '/search'
+        brw.get(rbURL)
+        time.sleep(PAGELOAD_TO)
+        
+        # possible filters done here
+        reply = input('[CD] Set your filters, if any, and then enter y to continue: ')
+        custom_output_dir = input("[CD] enter the directory name to store the results (ex. vegetarian): ")
+        if custom_output_dir : outputdir += '{}/'.format(custom_output_dir)
+    else:
+        rbURL += searchquery
+        brw.get(rbURL)
+        time.sleep(PAGELOAD_TO)
 
     print('[CD] Proceeding with scraping')
 
@@ -246,9 +253,10 @@ def run(webdriverfile, outputdir, separate_json, locale, keep_data = False):
 if  __name__ =='__main__':
     parser = argparse.ArgumentParser(description='Dump Cookidoo recipes from a valid account')
     parser.add_argument('webdriverfile', type=str, help='the path to the Chrome WebDriver file')
-    parser.add_argument('outputdir', type=str, help='the output directory')
+    parser.add_argument('outputdir', type=str, help='the output directory. If a search query is specified it will be used directly to save the recipes')
     parser.add_argument('-s', '--separate-json', action='store_true', help='Create a separate JSON file for each recipe; otherwise, a single data file will be generated')
     parser.add_argument('-l', '--locale', type=str, help='locale of cookidoo website (end of domain, ex. de, it, etc.))')
     parser.add_argument('-k', '--keep-data', action='store_true', help='persist chrome data and cookies between runs, creates a local chrome-data directory')
+    parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
     args = parser.parse_args()
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.locale, args.keep_data)
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.keep_data)
