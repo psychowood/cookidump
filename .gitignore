@@ -1,0 +1,5 @@
+.DS_Store
+chrome-data/
+Google Chrome for Testing.app/
+chromedriver.i386
+recipes/
