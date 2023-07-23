@@ -129,16 +129,18 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, keep_data 
     else:
         print('[CD] Locale argument set, going to https://cookidoo.{}'.format(locale))
 
-    baseURL = 'https://cookidoo.{}/'.format(locale)
+    baseURL = 'https://cookidoo.{}/profile/'.format(locale)
 
     brw = startBrowser(webdriverfile, keep_data)
 
-    # opening the home page
+    # try opening the profile url and check if authenticated
     brw.get(baseURL)
     time.sleep(PAGELOAD_TO)
 
-    reply = input('[CD] Please login to your account and then enter y to continue: ')
-
+    isAuth = (brw.get_cookie("v-authenticated") is not None)
+    
+    if not isAuth:
+        reply = input('[CD] Not authenticated, please login to your account and then enter y to continue: ')
 
 
     # recipes base url
