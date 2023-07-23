@@ -110,6 +110,7 @@ options:
                         the search query to use copied from the site after setting filter, without the domain (e.g. something like
                         "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
   -p, --pdf             saves recipe in pdf format too
+  --login               interactive login, mostly for headless mode
   --save-cookies        store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
   --headless            runs Chrome in headless mode, needs both a cookies.json saved with --save-cookies previously and --searchquery
                         specified
@@ -125,13 +126,15 @@ By using the various options you can automate everything. Using a shell script t
 
 ```
 
-$ python ./cookidump.py -l it -p ./chromedriver.i386 ./recipes/test --save-cookies
+$ python ./cookidump.py -l it -p ./chromedriver.i386 ./recipes/test --save-cookies --login --headless
 [CD] Welcome to cookidump, starting things off...
 [CD] Locale argument set, going to https://cookidoo.it
-[CD] Not authenticated, please login to your account and then enter y to continue: y
+[CD] Logging in
+[CD] Enter your email: myemail@mydomain.com
+[CD] Enter your password:
 [CD] Cookies saved to cookies.json, please re-run cookidump without --save-cookies
 
-$ python ./cookidump.py -l it --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -s ./chromedriver.i386 ./recipes/mysearch
+$ python ./cookidump.py -l it --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -s ./chromedriver.i386 ./recipes/mysearchpython3 ./cookidump.py -l it --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -s ./chromedriver.i386 ./recipes/mysearch
 [CD] Welcome to cookidump, starting things off...
 [CD] Locale argument set, going to https://cookidoo.it
 [CD] cookies.json file found and parsed
@@ -182,7 +185,7 @@ Output is represented in this case in a different (structured) format, hence, it
 
 * Bypass the limited number of exported recipes -> not really feasible automatically, the remote API limits to 1000 records. Can be bypassed by running multiple times with different search queries but needs quite a bit of smartness on the algorithm and would need merge of lists in the main html file to be browseable
 * Parse downloaded recipes to store them on a database, or to generate a unique linked PDF
-* Set up a dedicated container for the program -> needs to handle user and password via CLI if the end user is not smart enough to manually dump cookies
+* Set up a dedicated container for the program
 
 ### Supporters ###
 

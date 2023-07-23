@@ -13,6 +13,7 @@ import pathlib
 import argparse
 import platform
 import base64
+from getpass import getpass
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from urllib.parse import urlparse
@@ -183,7 +184,7 @@ def runActionOnElements(browser, byQuery, query, action):
 def isAuthenticated(browser):
     return browser.get_cookie("v-authenticated") is not None
 
-def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = False, save_cookies = False, headless = False):
+def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = False, save_cookies = False, headless = False, login = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -229,7 +230,17 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = Fals
             exit(-1)
 
     while (not isAuthenticated(brw)):
-        reply = input('[CD] Not authenticated, please login to your account and then enter y to continue: ')
+        if login:
+            # login
+            print('[CD] Logging in')
+            brw.get(baseURL + 'profile/login')
+            time.sleep(PAGELOAD_TO)
+            brw.find_element(By.ID, 'email').send_keys(input('[CD] Enter your email: '))
+            brw.find_element(By.ID, 'password').send_keys(getpass('[CD] Enter your password: '))
+            brw.find_element(By.CSS_SELECTOR, '#login_form_id button').click()
+            time.sleep(PAGELOAD_TO)
+        else:
+           reply = input('[CD] Not authenticated, please login to your account and then enter y to continue: ')
 
     if save_cookies:
         with open(COOKIES_FILE, 'w') as outfile: json.dump(brw.get_cookies(), outfile)
@@ -391,13 +402,18 @@ if  __name__ =='__main__':
     parser.add_argument('-l', '--locale', type=str, help='sets locale of cookidoo website (end of domain, ex. de, it, etc.))')
     parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
     parser.add_argument('-p', '--pdf', action='store_true', help='saves recipe in pdf format too')
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument('--save-cookies', action='store_true', help='store cookies in local {} file then exits; to be used with --headless or to avoid login on subsequent runs'.format(COOKIES_FILE))
-    group.add_argument('--headless', action='store_true', help='runs Chrome in headless mode, needs both a {} saved with --save-cookies previously and --searchquery specified'.format(COOKIES_FILE))
+    parser.add_argument('--login', action='store_true', help='interactive login, mostly for headless mode')
+    parser.add_argument('--save-cookies', action='store_true', help='store cookies in local {} file then exits; to be used with --headless or to avoid login on subsequent runs'.format(COOKIES_FILE))
+    parser.add_argument('--headless', action='store_true', help='runs Chrome in headless mode, needs both a {} saved with --save-cookies previously and --searchquery specified'.format(COOKIES_FILE))
     args = parser.parse_args()
 
-    if (args.headless and args.searchquery is None):
-        parser.error('--headless requires --searchquery to be specified')
+    if (args.headless and (args.searchquery is None and not args.login)):
+        parser.error('--headless requires either --searchquery or --login to be specified')
         exit(-1)
 
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless)
+    if (args.login and not args.save_cookies):
+        parser.error('--login requires --save-cookies to be specified')
+        exit(-1)
+
+
+    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless, args.login)
