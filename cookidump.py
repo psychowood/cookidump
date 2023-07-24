@@ -11,7 +11,6 @@ import time
 import json
 import pathlib
 import argparse
-import platform
 import base64
 from getpass import getpass
 from bs4 import BeautifulSoup
