@@ -411,9 +411,6 @@ if  __name__ =='__main__':
         parser.error('--headless requires either --searchquery or --login to be specified')
         exit(-1)
 
-    if (args.login and not args.save_cookies):
-        parser.error('--login requires --save-cookies to be specified')
-        exit(-1)
 
 
     run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless, args.login)
