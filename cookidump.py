@@ -410,6 +410,9 @@ if  __name__ =='__main__':
         parser.error('--headless requires --searchquery to be specified when run without --login')
         exit(-1)
 
+    print('[CD] Starting cookidump with arguments:')
 
+    for arg in vars(args):
+        print('[CD]    {} = {}'.format(arg, getattr(args, arg)))
 
     run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless, args.login)
