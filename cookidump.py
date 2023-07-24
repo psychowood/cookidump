@@ -234,6 +234,9 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = Fals
             print('[CD] Logging in')
             brw.get(baseURL + 'profile/login')
             time.sleep(PAGELOAD_TO)
+            if 'CAPTCHA' in brw.page_source:
+                print('[CD] Error: CAPTCHA detected, please login manually and then run cookidump with --save-cookies')
+                exit(-1)
             brw.find_element(By.ID, 'email').send_keys(input('[CD] Enter your email: '))
             brw.find_element(By.ID, 'password').send_keys(getpass('[CD] Enter your password: '))
             brw.find_element(By.CSS_SELECTOR, '#login_form_id button').click()
