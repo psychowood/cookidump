@@ -202,8 +202,8 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = Fals
                 cookies = json.load(infile)
                 print('[CD] {} file found and parsed'.format(COOKIES_FILE))
         except FileNotFoundError: 
-            if headless:
-                print('[CD] Error: {} file not found, please run cookidump with --save-cookies first'.format(COOKIES_FILE))
+            if headless and not login:
+                print('[CD] Error: {} file not found, please run cookidump with --save-cookies or --login.'.format(COOKIES_FILE))
                 exit(-1)
             cookies = None
         except:
@@ -406,8 +406,8 @@ if  __name__ =='__main__':
     parser.add_argument('--headless', action='store_true', help='runs Chrome in headless mode, needs both a {} saved with --save-cookies previously and --searchquery specified'.format(COOKIES_FILE))
     args = parser.parse_args()
 
-    if (args.headless and (args.searchquery is None and not args.login)):
-        parser.error('--headless requires either --searchquery or --login to be specified')
+    if (not args.login and args.headless and args.searchquery is None):
+        parser.error('--headless requires --searchquery to be specified when run without --login')
         exit(-1)
 
 
