@@ -394,16 +394,42 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = Fals
     brw.close()
 
 if  __name__ =='__main__':
+
     parser = argparse.ArgumentParser(description='Dump Cookidoo recipes from a valid account')
-    parser.add_argument('webdriverfile', type=str, help='the path to the Chrome WebDriver file')
-    parser.add_argument('outputdir', type=str, help='the output directory. If a search query is specified it will be used directly to save the recipes')
-    parser.add_argument('-s', '--separate-json', action='store_true', help='creates a separate JSON file for each recipe; otherwise, a single data file will be generated')
-    parser.add_argument('-l', '--locale', type=str, help='sets locale of cookidoo website (end of domain, ex. de, it, etc.))')
-    parser.add_argument('--searchquery', type=str, help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
-    parser.add_argument('-p', '--pdf', action='store_true', help='saves recipe in pdf format too')
-    parser.add_argument('--login', action='store_true', help='interactive login, mostly for headless mode')
-    parser.add_argument('--save-cookies', action='store_true', help='store cookies in local {} file then exits; to be used with --headless or to avoid login on subsequent runs'.format(COOKIES_FILE))
-    parser.add_argument('--headless', action='store_true', help='runs Chrome in headless mode, needs both a {} saved with --save-cookies previously and --searchquery specified'.format(COOKIES_FILE))
+
+    parser.add_argument('webdriverfile', type=str, nargs='?', 
+                        help='the path to the Chrome WebDriver file. Default: \'chromedriver\', Env var: CD_WEBDRIVER', 
+                        default=os.environ.get('CD_WEBDRIVER', 'chromedriver'))
+    
+    parser.add_argument('outputdir', type=str, nargs='?', 
+                        help='the output directory, if a search query is specified it will be used directly to save the recipes. Default: \'recipes\', Env var: CD_OUTPUTDIR', 
+                        default=os.environ.get('CD_OUTPUTDIR', 'recipes'))
+    
+    parser.add_argument('-s', '--separate-json', action='store_true', 
+                        help='creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Default: \'False\', Env var: CD_SEPARATE_JSON',
+                        default=(os.environ.get('CD_SEPARATE_JSON', None) != None))
+    
+    parser.add_argument('-l', '--locale', type=str, 
+                        help='sets locale of cookidoo website (end of domain, ex. de, it, etc.)). No default, Env var: CD_LOCALE',
+                        default=os.environ.get('CD_LOCALE', None))
+        
+    parser.add_argument('-p', '--pdf', action='store_true', default=(os.environ.get('CD_PDF',None) != None), 
+                        help='saves recipe in pdf format too. Default: \'False\', Env var: CD_PDF')
+    
+    parser.add_argument('--searchquery', type=str, 
+                        help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
+
+    parser.add_argument('--headless', action='store_true', 
+                        help='runs Chrome in headless mode, needs --searchquery specified and either --login or a {} saved with --save-cookies previously. Default: \'False\', Env var: CD_HEADLESS'.format(COOKIES_FILE),
+                        default=(os.environ.get('CD_HEADLESS', None) != None))
+
+    parser.add_argument('--login', action='store_true', 
+                        help='interactive terminal login')
+    
+    parser.add_argument('--save-cookies', action='store_true', 
+                        help='store cookies in local {} file then exits; to be used with --headless or to avoid login on subsequent runs'.format(COOKIES_FILE))
+    
+    
     args = parser.parse_args()
 
     if (not args.login and args.headless and args.searchquery is None):

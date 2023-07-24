@@ -82,40 +82,43 @@ python cookidump.py webdriverfile outputdir
 ```
 
 where the options are:
-* `webdriverfile` identifies the path to the downloaded [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) (for instance, `chromedriver.exe` for Windows hosts, `./chromedriver` for Linux and macOS hosts)
-* `outputdir` identifies the path of the output directory (will be created, if not already existent)
-* `-s` or `--separate-json` creates a separate JSON file for each recipe; otherwise, a single data file will be generated
-* `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.))
+* `webdriverfile` identifies the path to the downloaded [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) (for instance, `chromedriver.exe` for Windows hosts, `./chromedriver` for Linux and macOS hosts). Defaults to `chromedriver`, can be set via `CD_WEBDRIVER` env variable
+* `outputdir` identifies the path of the output directory (will be created, if not already existent). Defaults to `recipes`, can be set via `CD_OUTPUTDIR` env variable
+* `-s` or `--separate-json` creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Defaults to `false`, can be set via `CD_SEPARATE_JSON` env variable
+* `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.)). No default value, can be set via `CD_LOCALE` env variable 
+* `-p` or `--pdf` saves recipe in pdf format, together with json and html. Defaults to `false`, can be set via `CD_PDF` env variable
 * `--searchquery SEARCHQUERY` specifies the search query to use, copied from the site after setting filter(e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
-* `-p` or `--pdf` saves recipe in pdf format, together with json and html
+* `--headless` runs Chrome in headless mode, needs --searchquery specified and either --login or a cookies.json saved with --save-cookies previously. Defaults to `false`, can be set via `CD_HEADLESS` env variable
 * `--login` interactive login, mostly for headless mode
 * `--save-cookies` store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
-* `--headless` runs Chrome in headless mode, needs both a cookies.json saved with --save-cookies previously and --searchquery specified
+
 * `-h` prints the complete set of options:
 
 ```
-usage: cookidump.py [-h] [-s] [-l LOCALE] [-k] [--searchquery SEARCHQUERY] [-p] [--save-cookies | --headless] webdriverfile outputdir
+usage: cookidump.py [-h] [-s] [-l LOCALE] [-p] [--searchquery SEARCHQUERY] [--headless] [--login] [--save-cookies] [webdriverfile] [outputdir]
 
 Dump Cookidoo recipes from a valid account
 
 positional arguments:
-  webdriverfile         the path to the Chrome WebDriver file
-  outputdir             the output directory. If a search query is specified it will be used directly to save the recipes
+  webdriverfile         the path to the Chrome WebDriver file. Default: 'chromedriver', Env var: CD_WEBDRIVER
+  outputdir             the output directory, if a search query is specified it will be used directly to save the recipes. Default:
+                        'recipes', Env var: CD_OUTPUTDIR
 
 options:
   -h, --help            show this help message and exit
-  -s, --separate-json   creates a separate JSON file for each recipe; otherwise, a single data file will be generated
+  -s, --separate-json   creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Default: 'False', Env
+                        var: CD_SEPARATE_JSON
   -l LOCALE, --locale LOCALE
-                        sets locale of cookidoo website (end of domain, ex. de, it, etc.))
+                        sets locale of cookidoo website (end of domain, ex. de, it, etc.)). No default, Env var: CD_LOCALE
+  -p, --pdf             saves recipe in pdf format too. Default: 'False', Env var: CD_PDF
   --searchquery SEARCHQUERY
                         the search query to use copied from the site after setting filter, without the domain (e.g. something like
                         "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
-  -p, --pdf             saves recipe in pdf format too
-  --login               interactive login, mostly for headless mode
+  --headless            runs Chrome in headless mode, needs --searchquery specified and either --login or a cookies.json saved with --save-
+                        cookies previously. Default: 'False', Env var: CD_HEADLESS
+  --login               interactive terminal login
   --save-cookies        store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
-  --headless            runs Chrome in headless mode, needs both a cookies.json saved with --save-cookies previously and --searchquery
-                        specified
-  ```
+```
 
 The program will open a [Google Chrome](https://chrome.google.com) window - or headless - and wait until you are logged in into your [Cookidoo](https://cookidoo.co.uk) account if needed, (different countries are supported, either interactively or using the --locale/-l option).
 
