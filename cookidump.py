@@ -183,7 +183,7 @@ def runActionOnElements(browser, byQuery, query, action):
 def isAuthenticated(browser):
     return browser.get_cookie("v-authenticated") is not None
 
-def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = False, save_cookies = False, headless = False, login = False):
+def run(webdriverfile, outputdir, subdir, separate_json, searchquery, locale, pdf = False, save_cookies = False, headless = False, login = False):
     """Scraps all recipes and stores them in html"""
     print('[CD] Welcome to cookidump, starting things off...')
     # fixing the outputdir parameter, if needed
@@ -263,12 +263,16 @@ def run(webdriverfile, outputdir, separate_json, searchquery, locale, pdf = Fals
         
         # possible filters done here
         reply = input('[CD] Set your filters, if any, and then enter y to continue: ')
-        custom_output_dir = input("[CD] enter the directory name to store the results (ex. vegetarian): ")
-        if custom_output_dir : outputdir += '{}/'.format(custom_output_dir)
     else:
         rbURL += searchquery
         brw.get(rbURL)
         time.sleep(PAGELOAD_TO)
+
+    if subdir is None:
+        custom_output_dir = input("[CD] enter the directory name to store the results (ex. vegetarian): ")
+    else:
+        custom_output_dir = subdir
+    if custom_output_dir : outputdir += '{}/'.format(custom_output_dir)
 
     print('[CD] Proceeding with scraping page {}'.format(brw.current_url))
 
@@ -407,7 +411,11 @@ if  __name__ =='__main__':
     parser.add_argument('outputdir', type=str, nargs='?', 
                         help='the output directory, if a search query is specified it will be used directly to save the recipes. Default: \'recipes\', Env var: CD_OUTPUTDIR', 
                         default=os.environ.get('CD_OUTPUTDIR', 'recipes'))
-    
+
+    parser.add_argument('-o', '--subdir', type=str, 
+                        help='saves recipes inside outputdir in a specified subdirectory, useful for categoryzing. No default - it will be asked -, Env var: CD_SUBDIR',
+                        default=os.environ.get('CD_SUBDIR', None))
+
     parser.add_argument('-s', '--separate-json', action='store_true', 
                         help='creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Default: \'False\', Env var: CD_SEPARATE_JSON',
                         default=(os.environ.get('CD_SEPARATE_JSON', None) != None))
@@ -444,4 +452,4 @@ if  __name__ =='__main__':
     for arg in vars(args):
         print('[CD]    {} = {}'.format(arg, getattr(args, arg)))
 
-    run(args.webdriverfile, args.outputdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless, args.login)
+    run(args.webdriverfile, args.outputdir, args.subdir, args.separate_json, args.searchquery, args.locale, args.pdf, args.save_cookies, args.headless, args.login)

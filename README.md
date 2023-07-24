@@ -84,6 +84,7 @@ python cookidump.py webdriverfile outputdir
 where the options are:
 * `webdriverfile` identifies the path to the downloaded [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) (for instance, `chromedriver.exe` for Windows hosts, `./chromedriver` for Linux and macOS hosts). Defaults to `chromedriver`, can be set via `CD_WEBDRIVER` env variable
 * `outputdir` identifies the path of the output directory (will be created, if not already existent). Defaults to `recipes`, can be set via `CD_OUTPUTDIR` env variable
+* `-o` or `--subdir` saves recipes inside outputdir in a specified subdirectory, useful for categoryzing. No default value, can be set via `CD_SUBDIR` env variable
 * `-s` or `--separate-json` creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Defaults to `false`, can be set via `CD_SEPARATE_JSON` env variable
 * `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.)). No default value, can be set via `CD_LOCALE` env variable 
 * `-p` or `--pdf` saves recipe in pdf format, together with json and html. Defaults to `false`, can be set via `CD_PDF` env variable
@@ -106,6 +107,9 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  -o SUBDIR, --subdir SUBDIR
+                        saves recipes inside outputdir in a specified subdirectory, useful for categoryzing. No default - it will be asked -,
+                        Env var: CD_SUBDIR
   -s, --separate-json   creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Default: 'False', Env
                         var: CD_SEPARATE_JSON
   -l LOCALE, --locale LOCALE
@@ -129,16 +133,40 @@ After that, follow intructions provided by the script itself to proceed with the
 By using the various options you can automate everything. Using a shell script to iterate to queries of interest you can dump whatever you want without interacting besides the first login:
 
 ```
-
-$ python ./cookidump.py -l it -p ./chromedriver.i386 ./recipes/test --save-cookies --login --headless
+export CD_LOCALE='it'
+$ python ./cookidump.py -p --save-cookies --login --headless
+[CD] Starting cookidump with arguments:
+[CD]    webdriverfile = chromedriver
+[CD]    outputdir = recipes
+[CD]    subdir = None
+[CD]    separate_json = False
+[CD]    locale = it
+[CD]    pdf = True
+[CD]    searchquery = None
+[CD]    headless = True
+[CD]    login = True
+[CD]    save_cookies = True
 [CD] Welcome to cookidump, starting things off...
 [CD] Locale argument set, going to https://cookidoo.it
 [CD] Logging in
-[CD] Enter your email: myemail@mydomain.com
-[CD] Enter your password:
+[CD] Enter your email: xxxx
+[CD] Enter your password: 
 [CD] Cookies saved to cookies.json, please re-run cookidump without --save-cookies
 
-$ python ./cookidump.py -l it --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -s ./chromedriver.i386 ./recipes/mysearchpython3 ./cookidump.py -l it --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -s ./chromedriver.i386 ./recipes/mysearch
+
+export CD_SEPARATE_JSON=True
+$ python ./cookidump.py --pdf --headless --searchquery '/search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013' -o test
+[CD] Starting cookidump with arguments:
+[CD]    webdriverfile = chromedriver
+[CD]    outputdir = recipes
+[CD]    subdir = test
+[CD]    separate_json = True
+[CD]    locale = it
+[CD]    pdf = True
+[CD]    searchquery = /search/it-IT?context=recipes&countries=it&accessories=includingFriend,includingBladeCover,includingBladeCoverWithPeeler,includingCutter&query=bun&categories=VrkNavCategory-RPF-013
+[CD]    headless = True
+[CD]    login = False
+[CD]    save_cookies = False
 [CD] Welcome to cookidump, starting things off...
 [CD] Locale argument set, going to https://cookidoo.it
 [CD] cookies.json file found and parsed
@@ -151,17 +179,17 @@ Getting all recipes...
 [CD] Closing session
 [CD] Goodbye!
 
-$ ls -lR recipes/mysearch
+$ ls -lR recipes/test
 total 136
 drwxr-xr-x  3 user  staff     96 Jul 23 19:55 images
 -rw-r--r--  1 user  staff  67083 Jul 23 19:55 index.html
 drwxr-xr-x  5 user  staff    160 Jul 23 19:55 recipes
 
-recipes/mysearch/images:
+recipes/test/images:
 total 96
 -rw-r--r--  1 user  staff  45152 Jul 23 19:55 r660642.jpg
 
-recipes/mysearch/recipes:
+recipes/test/recipes:
 total 528
 -rw-r--r--  1 user  staff   68960 Jul 23 19:55 r660642.html
 -rw-r--r--  1 user  staff    2865 Jul 23 19:55 r660642.json
