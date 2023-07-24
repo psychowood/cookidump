@@ -88,6 +88,7 @@ where the options are:
 * `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.))
 * `--searchquery SEARCHQUERY` specifies the search query to use, copied from the site after setting filter(e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
 * `-p` or `--pdf` saves recipe in pdf format, together with json and html
+* `--login` interactive login, mostly for headless mode
 * `--save-cookies` store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
 * `--headless` runs Chrome in headless mode, needs both a cookies.json saved with --save-cookies previously and --searchquery specified
 * `-h` prints the complete set of options:
