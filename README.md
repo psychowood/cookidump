@@ -207,6 +207,8 @@ By opening the generated `index.html` file on your browser, it is possible to ha
 The number of exported recipes is limited to around `1000` for each execution.
 Hence, use of filters may help in this case to reduce the number of recipes exported.
 
+If you play a little too much with authentication, you may incur in a CAPTCHA error in headless mode. You can then solve the captcha using the browser, or wait some hours for it to reset.
+
 ### Other approaches ###
 
 A different approach, previously adopted, is based on the retrieval of structured data on recipes.
