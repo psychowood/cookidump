@@ -42,15 +42,6 @@ Further information can be found at [https://www.sciencedirect.com/science/artic
 
 ### Installation ###
 
-#### nix (not supported by this fork) ####
-
-```
-nix run github:auino/cookidump -- <outputdir> [--separate-json]
-```
-
-Nix provisions `google-chrome` together with `chromedriver`. Only 
-`<outputdir>` and `[--separate-json]` arguments are expected.
-
 #### manual ####
 
 1. Clone the repository:
@@ -72,6 +63,15 @@ pip install -r requirements.txt
 5. Download the [Chrome WebDriver](https://sites.google.com/chromium.org/driver/) and save it on the `cookidump` folder
 
 6. You are ready to dump your recipes
+
+#### nix (not supported by this fork) ####
+
+```
+nix run github:auino/cookidump -- <outputdir> [--separate-json]
+```
+
+Nix provisions `google-chrome` together with `chromedriver`. Only 
+`<outputdir>` and `[--separate-json]` arguments are expected.
 
 ### Usage ###
 
