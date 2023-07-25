@@ -88,7 +88,7 @@ where the options are:
 * `-s` or `--separate-json` creates a separate JSON file for each recipe; otherwise, a single data file will be generated. Defaults to `false`, can be set via `CD_SEPARATE_JSON` env variable
 * `-l LOCALE` or `--locale LOCALE` preselects the locale for cookidoo website (end of domain, ex. de, it, etc.)). No default value, can be set via `CD_LOCALE` env variable 
 * `-p` or `--pdf` saves recipe in pdf format, together with json and html. Defaults to `false`, can be set via `CD_PDF` env variable
-* `--searchquery SEARCHQUERY` specifies the search query to use, copied from the site after setting filter(e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
+* `-q` or `--searchquery SEARCHQUERY` specifies the search query to use, copied from the site after setting filter(e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
 * `--headless` runs Chrome in headless mode, needs --searchquery specified and either --login or a cookies.json saved with --save-cookies previously. Defaults to `false`, can be set via `CD_HEADLESS` env variable
 * `--login` interactive login, mostly for headless mode
 * `--save-cookies` store cookies in local cookies.json file then exits; to be used with --headless or to avoid login on subsequent runs
@@ -115,7 +115,7 @@ options:
   -l LOCALE, --locale LOCALE
                         sets locale of cookidoo website (end of domain, ex. de, it, etc.)). No default, Env var: CD_LOCALE
   -p, --pdf             saves recipe in pdf format too. Default: 'False', Env var: CD_PDF
-  --searchquery SEARCHQUERY
+  -q SEARCHQUERY, --searchquery SEARCHQUERY
                         the search query to use copied from the site after setting filter, without the domain (e.g. something like
                         "/search/?context=recipes&categories=VrkNavCategory-RPF-013")
   --headless            runs Chrome in headless mode, needs --searchquery specified and either --login or a cookies.json saved with --save-

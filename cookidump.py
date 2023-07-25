@@ -427,7 +427,7 @@ if  __name__ =='__main__':
     parser.add_argument('-p', '--pdf', action='store_true', default=(os.environ.get('CD_PDF',None) != None), 
                         help='saves recipe in pdf format too. Default: \'False\', Env var: CD_PDF')
     
-    parser.add_argument('--searchquery', type=str, 
+    parser.add_argument('-q','--searchquery', type=str, 
                         help='the search query to use copied from the site after setting filter, without the domain (e.g. something like "/search/?context=recipes&categories=VrkNavCategory-RPF-013")')
 
     parser.add_argument('--headless', action='store_true', 
