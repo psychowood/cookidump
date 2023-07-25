@@ -1,0 +1,24 @@
+version: '3.3'
+
+services:
+  build:
+    container_name: cookidump-build
+    build:
+      context: ./
+      dockerfile: Dockerfile
+
+  cookidump:
+    container_name: cookidump
+    image: cookidump_build:latest
+    security_opt:
+      - seccomp:./chrome-seccomp.json
+    volumes:
+      - ./:/home/cookidump/repo
+    environment:
+      - CD_WEBDRIVER=chromedriver
+      - CD_OUTPUTDIR=recipes
+    # - CD_SUBDIR=subdir
+      - CD_LOCALE=it
+      - CD_SEPARATE_JSON=True
+      - CD_PDF=True
+      - CD_HEADLESS=True # Don't remove this variable or cookidump won't run inside docker
