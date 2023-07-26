@@ -47,7 +47,7 @@ Further information can be found at [https://www.sciencedirect.com/science/artic
 1. Clone the repository:
 
 ```
-git clone https://github.com/auino/cookidump.git
+git clone https://github.com/psychowood/cookidump/
 ```
 
 2. `cd` into the download folder
