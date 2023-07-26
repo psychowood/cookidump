@@ -227,7 +227,9 @@ def run(webdriverfile, outputdir, subdir, separate_json, searchquery, locale, pd
         except:
             print('[CD] Error: {} file not valid, please check - or delete - it, and run cookidump with --save-cookies again'.format(COOKIES_FILE))
             exit(-1)
-
+    else:
+        print('[CD] Cookies not found, proceeding with login')
+        
     while (not isAuthenticated(brw)):
         if login:
             # login
