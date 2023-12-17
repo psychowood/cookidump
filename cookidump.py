@@ -279,13 +279,13 @@ def run(webdriverfile, outputdir, subdir, separate_json, searchquery, locale, pd
     print('[CD] Proceeding with scraping page {}'.format(brw.current_url))
 
     # removing the base href header
-    removeElements(brw,By.TAG_NAME, 'base')
+    #removeElements(brw,By.TAG_NAME, 'base')
 
     # removing the name
-    removeElements(brw, By.TAG_NAME, 'core-transclude')
+    removeElements(brw, By.TAG_NAME, 'core-user-profile')
 
     # showing all recipes
-    elementsToBeFound = int(brw.find_element(By.CLASS_NAME, 'search-results-count__hits').get_attribute('innerHTML'))
+    elementsToBeFound = int(brw.find_element(By.CLASS_NAME, 'items-start').text.split('\n')[-1].split(' ')[0])
     previousElements = 0
     while True:
         # checking if ended or not
@@ -296,7 +296,7 @@ def run(webdriverfile, outputdir, subdir, separate_json, searchquery, locale, pd
         time.sleep(SCROLL_TO)
         # clicking on the "load more recipes" button
         try:
-            brw.find_element(By.ID, 'load-more-page').click()
+            brw.find_element(By.ID, 'load-more-button').click()
             time.sleep(PAGELOAD_TO)
         except: pass
         print('Scrolling [{}/{}]'.format(currentElements, elementsToBeFound))
@@ -317,7 +317,7 @@ def run(webdriverfile, outputdir, subdir, separate_json, searchquery, locale, pd
         brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", el, 'href', './recipes/{}.html'.format(recipeID))
 
     # removing search bar
-    removeElements(brw, By.TAG_NAME, 'search-bar')
+    removeElements(brw, By.TAG_NAME, 'core-search-bar')
 
     # removing scripts
     removeElements(brw, By.TAG_NAME, 'script')
@@ -348,7 +348,7 @@ def run(webdriverfile, outputdir, subdir, separate_json, searchquery, locale, pd
             removeElements(brw,By.TAG_NAME, 'base')
             
             # removing the name
-            removeElements(brw,By.TAG_NAME, 'core-transclude')
+            removeElements(brw,By.TAG_NAME, 'core-user-profile')
             
             # changing the top url
             brw.execute_script("arguments[0].setAttribute(arguments[1], arguments[2]);", brw.find_element(By.CLASS_NAME, 'page-header__home'), 'href', '../../index.html')
